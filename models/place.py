@@ -115,3 +115,12 @@ class Place(BaseModel, Base):
             from models.amenity import Amenity
             if isinstance(obj, Amenity):
                 self.amenity_ids.append(obj.id)
+
+        @property
+        def reviews(self):
+            from models import storage
+            reviews_of_place = []
+            for value in storage.all(Review).values():
+                if value.place_id == self.id:
+                    reviews_of_place.append(value)
+            return reviews_of_place

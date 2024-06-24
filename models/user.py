@@ -19,3 +19,6 @@ class User(BaseModel, Base):
     """Cascade is to delete all child objects when parent delete"""
     places = relationship('Place', backref='user',
             cascade="all, delete, delete-orphan")
+    reviews = relationship('Review',
+            cascade="all, delete, delete-orphan",
+            backref='user')
