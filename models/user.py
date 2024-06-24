@@ -2,7 +2,7 @@
 """This module defines a class User"""
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
-
+from sqlalchemy.orm import relationship
 
 class User(BaseModel, Base):
     """This class defines a user by various attributes"""
@@ -15,3 +15,7 @@ class User(BaseModel, Base):
             String(128), nullable=True)
     last_name = Column(
             String(128), nullable=True)
+    """Backref to relate the user to the plce to avoid error"""
+    """Cascade is to delete all child objects when parent delete"""
+    places = relationship('Place', backref='user',
+            cascade="all, delete, delete-orphan")
