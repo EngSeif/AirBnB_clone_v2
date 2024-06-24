@@ -118,6 +118,7 @@ class Place(BaseModel, Base):
 
         @property
         def reviews(self):
+            """reviews of places of users """
             from models import storage
             reviews_of_place = []
             for value in storage.all(Review).values():
