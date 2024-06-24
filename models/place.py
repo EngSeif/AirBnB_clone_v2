@@ -1,18 +1,117 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-from models.base_model import BaseModel
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, INTEGER, VARCHAR, ForeignKey, FLOAT, Table
+from os import getenv
+from sqlalchemy.orm import relationship
 
 
-class Place(BaseModel):
+place_amenity = Table("place_amenity",
+                      Base.metadata,
+                      Column('place_id',
+                             VARCHAR(60),
+                             ForeignKey('places.id'),
+                             primary_key=True,
+                             nullable=False),
+                      Column('amenity_id',
+                             VARCHAR(60),
+                             ForeignKey('amenities.id'),
+                             primary_key=True,
+                             nullable=False))
+
+
+class Place(BaseModel, Base):
     """ A place to stay """
-    city_id = ""
-    user_id = ""
-    name = ""
-    description = ""
-    number_rooms = 0
-    number_bathrooms = 0
-    max_guest = 0
-    price_by_night = 0
-    latitude = 0.0
-    longitude = 0.0
-    amenity_ids = []
+    __tablename__ = 'places'
+
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        city_id = Column(
+            "city_id",
+            VARCHAR(60),
+            ForeignKey('cities.id'),
+            nullable=False
+        )
+        user_id = Column(
+            "user_id",
+            VARCHAR(60),
+            ForeignKey('users.id'),
+            nullable=False
+        )
+        name = Column(
+            "name",
+            VARCHAR(128),
+            nullable=False
+        )
+        description = Column(
+            "description",
+            VARCHAR(1024),
+            nullable=False
+        )
+        number_rooms = Column(
+            "number_rooms",
+            INTEGER,
+            nullable=False,
+            default=0
+        )
+        number_bathrooms = Column(
+            "number_bathrooms",
+            INTEGER,
+            nullable=False,
+            default=0
+        )
+        max_guest = Column(
+            "max_guest",
+            INTEGER,
+            nullable=False,
+            default=0
+        )
+        price_by_night = Column(
+            "price_by_night",
+            INTEGER,
+            nullable=False,
+            default=0
+        )
+        latitude = Column(
+            "latitude",
+            FLOAT,
+            nullable=True
+        )
+        longitude = Column(
+            "longitude",
+            FLOAT,
+            nullable=True
+        )
+        amenity_ids = []
+
+        amenities = relationship("Amenity",
+                                 secondary=place_amenity,
+                                 back_populates="place_amenities",
+                                 viewonly=False)
+    else:
+        city_id = ""
+        user_id = ""
+        name = ""
+        description = ""
+        number_rooms = 0
+        number_bathrooms = 0
+        max_guest = 0
+        price_by_night = 0
+        latitude = 0.0
+        longitude = 0.0
+        amenity_ids = []
+
+        @property
+        def amenities(self):
+            from models import storage
+            from models.amenity import Amenity
+            amenity_list = []
+            for amenity in storage.all(Amenity).values():
+                if amenity.id in self.amenity_ids:
+                    amenity_list.append(amenity)
+            return amenity_list
+
+        @amenities.setter
+        def amenities(self, obj):
+            from models.amenity import Amenity
+            if isinstance(obj, Amenity):
+                self.amenity_ids.append(obj.id)
