@@ -16,10 +16,3 @@ class User(BaseModel, Base):
     last_name = Column(String(128), nullable=True)
     """Backref to relate the user to the plce to avoid error"""
     """Cascade is to delete all child objects when parent delete"""
-    if getenv("HBNB_TYPE_STORAGE") == "db":
-        places = relationship(
-            "Place", backref="user", cascade="all, delete, delete-orphan"
-        )
-        reviews = relationship(
-            "Review", cascade="all, delete, delete-orphan", backref="user"
-        )

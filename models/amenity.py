@@ -1,11 +1,7 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
-from models.base_model import BaseModel, Base
-from sqlalchemy import Column, VARCHAR
-from os import getenv
-from sqlalchemy.orm import relationship
+from models.base_model import BaseModel
 
 
-class Amenity(BaseModel, Base):
-    __tablename__ = "amenities"
-    name = Column("name", VARCHAR(128), nullable=False)
+class Amenity(BaseModel):
+    name = ""
