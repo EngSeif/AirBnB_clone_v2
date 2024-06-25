@@ -58,7 +58,8 @@ class BaseModel:
         _dict.update(self.__dict__.copy())
         if "_sa_instance_state" in _dict:
             del _dict["_sa_instance_state"]
-        _dict.update({"__class__": (str(type(self)).split(".")[-1]).split("'")[0]})
+        value = (str(type(self)).split(".")[-1]).split("'")[0]
+        _dict.update({"__class__": value})
         _dict["created_at"] = self.created_at.isoformat()
         _dict["updated_at"] = self.updated_at.isoformat()
         return _dict
