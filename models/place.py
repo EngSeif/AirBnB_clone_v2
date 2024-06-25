@@ -30,23 +30,36 @@ class Place(BaseModel, Base):
 
     __tablename__ = "places"
     city_id = Column(
-        "city_id", VARCHAR(60), ForeignKey("cities.id"), nullable=False, unique=True
+        "city_id", VARCHAR(60),
+        ForeignKey("cities.id"), nullable=False, unique=True
     )
     user_id = Column(
-        "user_id", VARCHAR(60), ForeignKey("users.id"), nullable=False, unique=True
+        "user_id", VARCHAR(60),
+        ForeignKey("users.id"), nullable=False, unique=True
     )
-    name = Column("name", VARCHAR(128), nullable=False)
+    name = Column(
+        "name", VARCHAR(128), nullable=False)
     description = Column(
-        "description", VARCHAR(1024), nullable=False, default="No Description"
+        "description", VARCHAR(1024),
+        nullable=False, default="No Description"
     )
-    number_rooms = Column("number_rooms", INTEGER, nullable=False, default=0)
-    number_bathrooms = Column("number_bathrooms", INTEGER, nullable=False, default=0)
-    max_guest = Column("max_guest", INTEGER, nullable=False, default=0)
-    price_by_night = Column("price_by_night", INTEGER, nullable=False, default=0)
+    number_rooms = Column(
+        "number_rooms", INTEGER, nullable=False, default=0
+    )
+    number_bathrooms = Column(
+        "number_bathrooms", INTEGER, nullable=False, default=0
+    )
+    max_guest = Column(
+        "max_guest", INTEGER, nullable=False, default=0
+    )
+    price_by_night = Column(
+        "price_by_night", INTEGER, nullable=False, default=0
+    )
     latitude = Column("latitude", FLOAT, nullable=True)
     longitude = Column("longitude", FLOAT, nullable=True)
-    amenity_ids = []
-
+    reviews = relationship(
+        "Review", backref="user", cascade="all, delete, delete-orphan"
+    )
     amenities = relationship(
         "Amenity",
         secondary=place_amenity,
@@ -76,6 +89,17 @@ class Place(BaseModel, Base):
                 if amenity.id in self.amenity_ids:
                     amenity_list.append(amenity)
             return amenity_list
+
+        @property
+        def reviews(self):
+            from models import storage
+            from models.review import Review
+
+            review_list = []
+            for review in storage.all(Review).values():
+                if review.id in self.amenity_ids:
+                    review_list.append(review)
+            return review_list
 
         @amenities.setter
         def amenities(self, obj):
