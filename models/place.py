@@ -22,7 +22,7 @@ class Place(BaseModel, Base):
         reviews = relationship("Review", cascade="delete", backref="place")
     else:
 
-        @property.getter
+        @property
         def reviews(self):
             """reviews of places of users"""
             from models import storage
