@@ -1,15 +1,19 @@
+#!/usr/bin/python3
+"""This module to test manage file storage for hbnb clone"""
 import unittest
 from models.state import State
 from models import storage
 
 
 class TestDBStorage(unittest.TestCase):
-    
+    """
+    Test DB Storage
+    """
     def setUp(self):
         """ Set up the test environment """
         self.db = storage.DBStorage()
         self.db.reload()
-        
+
     def tearDown(self):
         """ Tear down the test environment """
         self.db.close()

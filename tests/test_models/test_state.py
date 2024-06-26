@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" """
+""" Test State """
 import unittest
 from tests.test_models.test_base_model import test_basemodel
 from models import storage
@@ -14,7 +14,7 @@ class test_state(unittest.TestCase):
 
     def setUp(self):
         """
-        Set Up for tests 
+        Set Up for tests
         """
         self.state = State(name="California")
         self.city1 = City(name="San Francisco", state_id=self.state.id)
@@ -22,7 +22,7 @@ class test_state(unittest.TestCase):
 
     def tearDown(self):
         """
-        Tear Down for tests 
+        Tear Down for tests
         """
         del self.state
         del self.city1
@@ -42,7 +42,8 @@ class test_state(unittest.TestCase):
         self.assertIsInstance(self.city2.id, str)
         self.assertTrue(UUID(self.city2.id))
 
-    @unittest.skipIf(getenv('HBNB_TYPE_STORAGE') != 'db', "Testing DB storage only")
+    @unittest.skipIf(getenv('HBNB_TYPE_STORAGE') != 'db',
+                     "Testing DB storage only")
     def test_cities_db_storage(self):
         """
         Test Cities Relationship with DB storage
@@ -54,7 +55,8 @@ class test_state(unittest.TestCase):
         self.assertIn(self.city1, self.state.cities)
         self.assertIn(self.city2, self.state.cities)
 
-    @unittest.skipIf(getenv('HBNB_TYPE_STORAGE') == 'db', "Testing file storage only")
+    @unittest.skipIf(getenv('HBNB_TYPE_STORAGE') == 'db',
+                     "Testing file storage only")
     def test_cities_file_storage(self):
         """
         Test Cities Relationship with File storage

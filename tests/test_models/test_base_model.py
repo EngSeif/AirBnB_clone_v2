@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" """
+""" Test Base Model"""
 from models.base_model import BaseModel
 import unittest
 import datetime
@@ -28,7 +28,7 @@ class test_basemodel(unittest.TestCase):
     def tearDown(self):
         try:
             os.remove('file.json')
-        except:
+        except Exception as e:
             pass
         del self.model
 
@@ -73,7 +73,11 @@ class test_basemodel(unittest.TestCase):
         val = self.model
         dict_copy = val.__dict__.copy()
         dict_copy.pop('_sa_instance_state', None)
-        expected_str = '[{}] ({}) {}'.format(val.__class__.__name__, val.id, dict_copy)
+        expected_str = '[{}] ({}) {}'.format(
+            val.__class__.__name__,
+            val.id,
+            dict_copy
+        )
         self.assertEqual(str(val), expected_str)
 
     def test_todict(self):

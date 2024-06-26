@@ -24,7 +24,7 @@ class test_fileStorage(unittest.TestCase):
         """ Remove storage file at end of tests """
         try:
             os.remove('file.json')
-        except:
+        except Exception as e:
             pass
 
     def test_obj_list_empty(self):
@@ -37,19 +37,16 @@ class test_fileStorage(unittest.TestCase):
         self.storage.new(ob)
         self.assertTrue(ob, self.storage.all().values())
 
-def test_all(self):
-    """ __objects is properly returned """
-    ob = BaseModel()
-    
-    # Add ob to self.storage
-    self.storage.new(ob)
-    
-    temp = self.storage.all()
-    self.assertIsInstance(temp, dict)
-    
-    # Check if ob is in the values of temp
-    self.assertIn(ob, temp.values())
+    def test_all(self):
+        """ __objects is properly returned """
+        ob = BaseModel()
 
+        # Add ob to self.storage
+        self.storage.new(ob)
+        temp = self.storage.all()
+        self.assertIsInstance(temp, dict)
+        # Check if ob is in the values of temp
+        self.assertIn(ob, temp.values())
 
     def test_base_model_instantiation(self):
         """ File is not created on BaseModel save """
@@ -71,7 +68,6 @@ def test_all(self):
         with open('file.json', 'r') as f:
             data = json.load(f)
             self.assertIn(ob.to_dict()['__class__'] + '.' + ob.id, data.keys())
-
 
     def test_reload(self):
         """ Storage file is successfully loaded to __objects """
@@ -104,11 +100,13 @@ def test_all(self):
         new.save()
         with open('file.json', 'r') as f:
             data = json.load(f)
-            self.assertIn(new.to_dict()['__class__'] + '.' + new.id, data.keys())
+            self.assertIn(new.to_dict()['__class__']
+                          + '.' + new.id, data.keys())
 
     def test_type_path(self):
         """ Confirm __file_path is string """
-        self.assertIsInstance(self.storage._FileStorage__file_path, str)
+        self.assertIsInstance(self.storage._FileStorage__file_path,
+                              str)
 
     def test_type_objects(self):
         """ Confirm __objects is a dict """
@@ -156,11 +154,10 @@ def test_all(self):
         """ Delete an invalid object from __objects """
         # Create invalid_obj and add it to __objects
         invalid_obj = BaseModel()
-        invalid_obj.id = '6c5bca5c-6400-4645-a011-a212b7e5fc06'  # Set a known id for consistency
+        invalid_obj.id = '6c5bca5c-6400-4645-a011-a212b7e5fc06'
         self.storage.new(invalid_obj)
 
         # Now delete invalid_obj
         self.storage.delete(invalid_obj)
         self.storage.save()
         self.assertNotIn(invalid_obj, self.storage.all())
-

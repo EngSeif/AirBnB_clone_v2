@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" """
+""" TEst Review"""
 from tests.test_models.test_base_model import test_basemodel
 from models.review import Review
 import unittest
@@ -14,7 +14,8 @@ class test_review(unittest.TestCase):
         """
         Set up for tests
         """
-        self.review = Review(text="Great experience!", place_id="1234", user_id="5678")
+        self.review = Review(text="Great experience!",
+                             place_id="1234", user_id="5678")
 
     def tearDown(self):
         """

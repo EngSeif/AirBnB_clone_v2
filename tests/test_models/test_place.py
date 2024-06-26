@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" """
+""" Test Place"""
 from models.place import Place
 from unittest.mock import patch, MagicMock
 from models import storage
@@ -14,8 +14,10 @@ class test_Place(unittest.TestCase):
 
     def setUp(self):
         """Set up for tests"""
-        self.place = Place(city_id="1234", user_id="5678", name="Cozy Apartment",
-                           description="A lovely place to stay", number_rooms=2,
+        self.place = Place(city_id="1234", user_id="5678",
+                           name="Cozy Apartment",
+                           description="A lovely place to stay",
+                           number_rooms=2,
                            number_bathrooms=1, max_guest=4, price_by_night=100,
                            latitude=37.7749, longitude=-122.4194)
 
@@ -135,7 +137,10 @@ class test_Place(unittest.TestCase):
             mock_amenity1.id = "1"
             mock_amenity2 = MagicMock()
             mock_amenity2.id = "2"
-            mock_all.return_value.values.return_value = [mock_amenity1, mock_amenity2]
+            mock_all.return_value.values.return_value = [
+                mock_amenity1,
+                mock_amenity2
+            ]
             self.place.amenity_ids = ["1"]
             amenities = self.place.amenities
             self.assertIsInstance(amenities, list)
