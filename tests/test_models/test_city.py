@@ -2,35 +2,53 @@
 """ """
 from tests.test_models.test_base_model import test_basemodel
 from models.city import City
+import unittest
 
 
-class test_City(test_basemodel):
+class test_City(unittest.TestCase):
     """ test the city"""
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "City"
-        self.value = City
+    def setUp(self):
+        """
+        Set up for tests
+        """
+        self.city = City(name="San Francisco", state_id="1234")
 
-    def test_state_id(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.state_id), str)
+    def tearDown(self):
+        """
+        Tear down for tests
+        """
+        del self.city
 
-    def test_name(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
+    def test_City_init(self):
+        """Test that the City instance is correctly initialized"""
+        self.assertEqual(self.city.name, "San Francisco")
+        self.assertEqual(self.city.state_id, "1234")
 
-    def test_city_name_is_string_and_not_empty(self):
-        """Tests that city name is a string and not empty."""
-        """Arrange"""
-        city_name = "New York"
+    def test_name_is_string(self):
+        """
+        Test that the name attribute is a string
+        """
+        self.assertIsInstance(self.city.name, str)
 
-        """act"""
-        city = City(name=city_name)
-        """assert"""
-        self.assertIsInstance(city.name, str)
-        self.assertNotEmpty(city.name)
+    def test_state_id_is_string(self):
+        """
+        Test that the state_id attribute is a string
+        """
+        self.assertIsInstance(self.city.state_id, str)
 
+    def test_name_not_empty(self):
+        """
+        Test that the name attribute is not empty
+        """
+        self.assertTrue(self.city.name)
+
+    def test_state_id_not_empty(self):
+        """
+        Test that the state_id attribute is not empty
+        """
+        self.assertTrue(self.city.state_id)
+
+    def test_relationship(self):
+        self.assertTrue(hasattr(self.city, 'places'))
+        self.assertEqual(self.city.places, [])

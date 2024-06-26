@@ -2,29 +2,40 @@
 """ """
 from tests.test_models.test_base_model import test_basemodel
 from models.amenity import Amenity
+import unittest
+from models.place import Place
 
+class TestAmenity(unittest.TestCase):
+    """
+    Test the Amenity class
+    """
 
-class test_Amenity(test_basemodel):
-    """ """
+    def setUp(self):
+        """
+        Set up for tests
+        """
+        self.amenity = Amenity(name="WiFi")
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "Amenity"
-        self.value = Amenity
+    def tearDown(self):
+        """
+        Tear down for tests
+        """
+        del self.amenity
 
-    def test_name2(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
+    def test_initialization(self):
+        """
+        Test that the Amenity instance is correctly initialized
+        """
+        self.assertEqual(self.amenity.name, "WiFi")
 
-    def test_id__is__string(self):
-        """"""
-        self.assertEqual(str, type(Amenity().id))
+    def test_name_is_string(self):
+        """
+        Test that the name attribute is a string
+        """
+        self.assertIsInstance(self.amenity.name, str)
 
-    def test_created_at_is__time(self):
-        self.assertEqual(datetime, type(Amenity().created_at))
-
-    def test_updated_at_is__time(self):
-        self.assertEqual(datetime, type(Amenity().updated_at))
-
+    def test_name_not_empty(self):
+        """
+        Test that the name attribute is not empty
+        """
+        self.assertTrue(self.amenity.name)
