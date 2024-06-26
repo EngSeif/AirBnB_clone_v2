@@ -27,3 +27,12 @@ class test_review(test_basemodel):
         """ """
         new = self.value()
         self.assertEqual(type(new.text), str)
+
+    def test_review(self):
+        """Test the time the id and everything"""
+        userA = Review()
+        userB = Review(**userA.to_dict())
+        self.assertIsInstance(userA.id, str)
+        self.assertIsInstance(userA.created_at, datetime)
+        self.assertIsInstance(userA.updated_at, datetime)
+        self.assertEqual(userA.updated_at, userB.updated_at)
