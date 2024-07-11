@@ -1,54 +1,60 @@
-#!/bin/bash
-# Install nginx if not already installed
-sudo apt-get update
-sudo apt-get -y install nginx
+#!/usr/bin/env bash
+# A Bash script that sets up your web
+# servers for the deployment of web_static
+if ! [ -x "$(command -v nginx)" ]; then
+    sudo apt-get update
+    sudo apt-get install -y nginx
+fi
 
-# Create necessary directories if they don't exist
-sudo mkdir -p /data/web_static/releases/test/
-sudo mkdir -p /data/web_static/shared/
-sudo mkdir -p /data/web_static/releases/
+sudo mkdir -p /data/web_static/{releases/test,shared}
+sudo mkdir -p /data/web_static/current
 
-# Create a fake HTML file for testing
-echo "<html>
-  <head>
+echo "
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
     <title>Test Page</title>
-  </head>
-  <body>
-    <p>This is a test page.</p>
-  </body>
-</html>" | sudo tee /data/web_static/releases/test/index.html
+</head>
+<body>
+    <h1>Hello World!</h1>
+</body>
+</html>
+" | sudo tee /data/web_static/releases/test/index.html >/dev/null
 
-# Create or recreate symbolic link
-sudo rm -rf /data/web_static/current
-sudo ln -s /data/web_static/releases/test/ /data/web_static/current
+Target="/data/web_static/releases/test"
+link="/data/web_static/current"
 
-# Set ownership of the /data/ folder to ubuntu user and group
-sudo chown -R ubuntu:ubuntu /data/
+# If the symbolic link already exists,
+# it should be deleted and recreated
+# every time the script is ran.
 
-# Update Nginx configuration to serve content and restart Nginx
-config_content=$(
-    cat <<EOF
-server {
-    listen 80;
-    listen [::]:80;
-    server_name _;
+if [ -L "$link" ]; then
+    rm "$link"
+fi
+
+config_block="
     location /hbnb_static {
         alias /data/web_static/current/;
-        index index.html;
+        index index.html index.htm;
+    }
+"
+
+ln -s "$Target" "$link"
+
+sudo chown -R ubuntu:ubuntu /data/
+sudo bash -c "cat > /etc/nginx/sites-available/web_static" <<EOF
+server {
+    listen 80;
+    server_name _;
+
+    $config_block
+
+    location / {
+        # Other configurations if any
     }
 }
 EOF
-)
-
-# Remove default symlink if exists
-sudo rm -rf /etc/nginx/sites-enabled/default
-
-# Write new config to a temporary file
-sudo bash -c "echo '$config_content' > /etc/nginx/sites-available/web_static"
-# Create a symlink to sites-enabled
-sudo ln -sf /etc/nginx/sites-available/web_static /etc/nginx/sites-enabled/web_static
-
-# Restart nginx
+sudo ln -sf /etc/nginx/sites-available/web_static /etc/nginx/sites-enabled/
 sudo service nginx restart
-
-exit 0
