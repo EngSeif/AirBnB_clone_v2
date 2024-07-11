@@ -2,12 +2,12 @@
 # A Bash script that sets up your web
 # servers for the deployment of web_static
 if ! [ -x "$(command -v nginx)" ]; then
-    sudo apt-get update
-    sudo apt-get install -y nginx
+    apt-get update
+    apt-get install -y nginx
 fi
 
-sudo mkdir -p /data/web_static/{releases/test,shared}
-sudo mkdir -p /data/web_static/current
+mkdir -p /data/web_static/{releases/test,shared}
+mkdir -p /data/web_static/current
 
 echo "
 <!DOCTYPE html>
@@ -21,7 +21,7 @@ echo "
     <h1>Hello World!</h1>
 </body>
 </html>
-" | sudo tee /data/web_static/releases/test/index.html >/dev/null
+" | tee /data/web_static/releases/test/index.html >/dev/null
 
 Target="/data/web_static/releases/test"
 link="/data/web_static/current"
@@ -43,8 +43,8 @@ config_block="
 
 ln -s "$Target" "$link"
 
-sudo chown -R ubuntu:ubuntu /data/
-sudo bash -c "cat > /etc/nginx/sites-available/web_static" <<EOF
+chown -R ubuntu:ubuntu /data/
+bash -c "cat > /etc/nginx/sites-available/web_static" <<EOF
 server {
     listen 80;
     server_name _;
@@ -56,5 +56,5 @@ server {
     }
 }
 EOF
-sudo ln -sf /etc/nginx/sites-available/web_static /etc/nginx/sites-enabled/
-sudo service nginx restart
+ln -sf /etc/nginx/sites-available/web_static /etc/nginx/sites-enabled/
+service nginx restart
