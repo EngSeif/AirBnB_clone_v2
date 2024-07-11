@@ -1,32 +1,53 @@
 #!/usr/bin/python3
-"""
-distributes an archive to your web servers,
-"""
-
-from fabric.api import env, put, run, sudo
+"""Fabric script that Generates a .tgz archive"""
+from fabric.api import *
+from datetime import datetime
 import os
+from fabric.contrib.files import exists
+
 
 env.hosts = ['18.207.1.248', '100.25.194.205']
+env.user = 'ubuntu'
+
 
 def do_deploy(archive_path):
-    """
-    distributes an archive to your web servers
-    """
-    try:
-        if not os.path.exists(archive_path):
-            return False
-        filename = os.path.basename(archive_path)
-        folder_name = filename.replace('.tgz', '').split('_')[2]
-        release_path = '/data/web_static/releases/{}/'.format(folder_name)
-        sudo('mkdir -p {}'.format(release_path))
-        sudo('tar -xzf /tmp/{} -C {}'.format(filename, release_path))
-        sudo('rm /tmp/{}'.format(filename))
-        sudo('mv {}web_static/* {}'.format(release_path, release_path))
-        sudo('rm -rf {}web_static'.format(release_path))
-        current_link = '/data/web_static/current'
-        if sudo('test -d {}'.format(current_link)).failed:
-            sudo('rm {}'.format(current_link))
-        sudo('ln -s {} {}'.format(release_path, current_link))
-        return True
-    except Exception as e:
-        return False   
+    '''Deploy archive to web server'''
+    if not archive_path:
+        return False
+
+    if not os.path.exists(archive_path):
+        print('Archive path does not exist:', archive_path)
+        return False
+
+    file_name = os.path.basename(archive_path)
+    file_name_no_ext = os.path.splitext(file_name)[0]
+    target_path = '/data/web_static/releases/{}'.format(file_name_no_ext)
+
+    # Upload the archive to the remote server
+    put(archive_path, '/tmp/', use_sudo=True)
+
+    # Create the target directory
+    if not exists(target_path):
+        sudo('mkdir -p {}'.format(target_path))
+
+    # Extract the archive into the target directory
+    with cd(target_path):
+        sudo('tar -xzf /tmp/{} -C {}'.format(file_name, target_path))
+
+    # Remove the uploaded archive from the remote server
+    sudo('rm /tmp/{}'.format(file_name))
+
+    # Move the contents of the extracted archive to the target directory
+    sudo('mv {}/web_static/* {}/'.format(target_path, target_path))
+
+    # Remove the web_static directory from the target directory
+    sudo('rm -rf {}/web_static'.format(target_path))
+
+    # Remove the current symlink if it exists
+    sudo('rm -rf /data/web_static/current')
+
+    # Create a new symlink to the latest release
+    sudo('ln -s {} /data/web_static/current'.format(target_path))
+
+    print('New version deployed!')
+    return True
