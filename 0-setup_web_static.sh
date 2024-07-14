@@ -1,45 +1,35 @@
 #!/usr/bin/env bash
-# A Bash script that sets up your web servers for the deployment of web_static
-if ! command -v nginx >/dev/null 2>&1; then
-    apt-get update
-    apt-get install nginx
-fi
+# a Bash script that sets up your web servers for the deployment of web_static
 
-DIRS=(
-    "/data"
-    "/data/web_static"
-    "/data/web_static/releases"
-    "/data/web_static/shared"
-    "/data/web_static/releases/test"
-)
-
-for Dir in "${DIRS[@]}"; do
-    if [ ! -d "$Dir" ]; then
-        mkdir -p "$Dir"
-    fi
-done
-
-echo " <!DOCTYPE html>
-<html lang=\"en\">
-<head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-    <title>Test Page</title>
-</head>
-<body>
-    <h1>Hello World!</h1>
-</body>
-</html> " >/data/web_static/releases/test/index.html
-
-SYMLINK="/data/web_static/current"
-
-if [ -L "$SYMLINK" ]; then
-    rm "$SYMLINK"
-fi
-
-ln -s /data/web_static/releases/test/ "$SYMLINK"
-
-chown -R ubuntu:ubuntu /data
-sed -i "9i\ \n\tlocation /hbnb_static {\n\t\talias /data/web_static/current;\n\t\tautoindex off;\n\t}" /etc/nginx/sites-available/default
-
+apt-get update
+apt-get -y install nginx
+# Install Nginx if it not already installed
+mkdir -p /data/web_static/releases/test/
+# Create the folder /data/ if it doesn’t already exist
+# Create the folder /data/web_static/ if it doesn’t already exist
+# Create the folder /data/web_static/releases/ if it doesn’t already exist
+# Create the folder /data/web_static/releases/test/ if it doesn’t already exist
+mkdir -p /data/web_static/shared/
+# Create the folder /data/web_static/shared/ if it doesn’t already exist
+echo '<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>' >/data/web_static/releases/test/index.html
+# Create a fake HTML file /data/web_static/releases/test/index.html
+ln -sf /data/web_static/releases/test/ /data/web_static/current
+# Create a symbolic link /data/web_static/current linked to the...
+# .../data/web_static/releases/test/ folder. If the symbolic link already...
+# ...exists, it should be deleted and recreated every time the script is ran.
+chown -hR ubuntu:ubuntu /data/
+# Give ownership of the /data/ folder to the ubuntu user AND group (you can
+# assume this user and group exist). This should be recursive; everything
+# inside should be created/owned by this user/group.
+sed -i '51 i \\n\tlocation /hbnb_static {\n\talias /data/web_static/current;\n\t}' /etc/nginx/sites-available/default
+# Update the Nginx configuration to serve the content of
+# /data/web_static/current/ to hbnb_static
+# (ex: https://mydomainname.tech/hbnb_static).
+# Don’t forget to restart Nginx after updating the configuration:
 service nginx restart
