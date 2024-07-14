@@ -10,6 +10,7 @@ from datetime import datetime
 env.hosts = ['18.207.1.248', '100.25.194.205']
 env.user = 'ubuntu'
 
+
 def do_deploy(archive_path):
     '''Deploy archive to web server'''
     try:
@@ -32,6 +33,7 @@ def do_deploy(archive_path):
         return True
     except Exception as e:
         return False
+
 
 def do_pack():
     """
@@ -56,12 +58,14 @@ def do_pack():
     else:
         return archive_path
 
+
 def deploy():
     """
     creates and distributes an archive to your web servers 
     """
     archive_path = do_pack()
-    if archive_path is None:
+    if os.path.exists(archive_path) is False:
         return False
 
-    return do_deploy(archive_path)
+    result = do_deploy(archive_path)
+    return result
