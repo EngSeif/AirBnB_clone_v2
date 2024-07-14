@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
-# A Bash script that sets up your web
-# servers for the deployment of web_static
-if ! [ -x "$(command -v nginx)" ]; then
+# A Bash script that sets up your web servers for the deployment of web_static
+if ! command -v nginx >/dev/null 2>&1; then
     apt-get update
-    apt-get install -y nginx
+    apt-get install nginx
 fi
 
-mkdir -p /data/web_static/{releases/test,shared}
-mkdir -p /data/web_static/current
+DIRS=(
+    "/data"
+    "/data/web_static"
+    "/data/web_static/releases"
+    "/data/web_static/shared"
+    "/data/web_static/releases/test"
+)
 
-echo "
-<!DOCTYPE html>
+for Dir in "${DIRS[@]}"; do
+    if [ ! -d "$Dir" ]; then
+        mkdir -p "$Dir"
+    fi
+done
+
+echo " <!DOCTYPE html>
 <html lang=\"en\">
 <head>
     <meta charset=\"UTF-8\">
@@ -20,41 +29,17 @@ echo "
 <body>
     <h1>Hello World!</h1>
 </body>
-</html>
-" | tee /data/web_static/releases/test/index.html >/dev/null
+</html> " >/data/web_static/releases/test/index.html
 
-Target="/data/web_static/releases/test"
-link="/data/web_static/current"
+SYMLINK="/data/web_static/current"
 
-# If the symbolic link already exists,
-# it should be deleted and recreated
-# every time the script is ran.
-
-if [ -L "$link" ]; then
-    rm "$link"
+if [ -L "$SYMLINK" ]; then
+    rm "$SYMLINK"
 fi
 
-config_block="
-    location /hbnb_static {
-        alias /data/web_static/current/;
-        index index.html index.htm;
-    }
-"
+ln -s /data/web_static/releases/test/ "$SYMLINK"
 
-ln -s "$Target" "$link"
+chown -R ubuntu:ubuntu /data
+sed -i "9i\ \n\tlocation /hbnb_static {\n\t\talias /data/web_static/current;\n\t\tautoindex off;\n\t}" /etc/nginx/sites-available/default
 
-chown -R ubuntu:ubuntu /data/
-bash -c "cat > /etc/nginx/sites-available/web_static" <<EOF
-server {
-    listen 80;
-    server_name _;
-
-    $config_block
-
-    location / {
-        # Other configurations if any
-    }
-}
-EOF
-ln -sf /etc/nginx/sites-available/web_static /etc/nginx/sites-enabled/
 service nginx restart
