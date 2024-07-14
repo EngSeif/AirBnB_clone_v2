@@ -12,6 +12,19 @@ env.hosts = ['18.207.1.248', '100.25.194.205']
 env.user = 'ubuntu'
 
 
+def do_pack():
+    """generates a .tgz archive from the contents of the web_static folder
+    """
+    local("sudo mkdir -p versions")
+    date = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = "versions/web_static_{}.tgz".format(date)
+    result = local("sudo tar -cvzf {} web_static".format(filename))
+    if result.succeeded:
+        return filename
+    else:
+        return None
+
+
 def do_deploy(archive_path):
     """ distributes an archive to my web servers
     """
@@ -41,41 +54,15 @@ def do_deploy(archive_path):
         # web server, linked to the new version of your code
         # (/data/web_static/releases/<archive filename without extension>)
         return True
-    except:
+    except Exception as e:
         return False
-
-
-def do_pack():
-    """
-    generates a .tgz archive
-    from the contents of the web_static
-    folder of your AirBnB Clone repo
-    """
-    if not os.path.exists('versions'):
-        os.makedirs('versions')
-
-    # Create the name of the archive file based on current timestamp
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d%H%M%S")
-    archive_path = "versions/web_static_{}.tgz".format(timestamp)
-
-    # Create the .tgz archive using tar command
-    result = local("tar -cvzf {} web_static".format(archive_path))
-
-    # Check if tar command was successful
-    if result.failed:
-        return None
-    else:
-        return archive_path
 
 
 def deploy():
+    """ creates and distributes an archive to your web servers
     """
-    creates and distributes an archive to your web servers 
-    """
-    archive_path = do_pack()
-    if os.path.exists(archive_path) is False:
+    new_archive_path = do_pack()
+    if exists(new_archive_path) is False:
         return False
-
-    result = do_deploy(archive_path)
+    result = do_deploy(new_archive_path)
     return result
