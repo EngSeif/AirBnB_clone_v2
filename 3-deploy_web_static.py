@@ -3,7 +3,8 @@
 distributes an archive to your web servers,
 """
 
-from fabric.api import env, local, sudo, put
+from fabric.api import env, local, run, put
+from os.path import exists
 import os
 from datetime import datetime
 
@@ -12,26 +13,35 @@ env.user = 'ubuntu'
 
 
 def do_deploy(archive_path):
-    '''Deploy archive to web server'''
+    """ distributes an archive to my web servers
+    """
+    if exists(archive_path) is False:
+        return False  # Returns False if the file at archive_path doesnt exist
+    filename = archive_path.split('/')[-1]
+    # so now filename is <web_static_2021041409349.tgz>
+    no_tgz = '/data/web_static/releases/' + "{}".format(filename.split('.')[0])
+    # curr = '/data/web_static/current'
+    tmp = "/tmp/" + filename
+
     try:
-        if not os.path.exists(archive_path):
-            return False
-        put(archive_path, '/tmp/')
-        archive_filename = archive_path.split('/')[-1]
-        archive_name_no_ext = archive_filename.split('.')[0]
-        release_path = '/data/web_static/releases/{}'.format(
-            archive_name_no_ext
-            )
-        sudo('mkdir -p {}'.format(release_path))
-        sudo('tar -xzf /tmp/{} -C {}'.format(archive_filename, release_path))
-        sudo('rm /tmp/{}'.format(archive_filename))
-        sudo('mv {}/web_static/* {}/'.format(release_path, release_path))
-        sudo('rm -rf {}/web_static'.format(release_path))
-        sudo('rm -rf /data/web_static/current')
-        sudo('ln -s {} /data/web_static/current'.format(release_path))
-        print("New version deployed!")
+        put(archive_path, "/tmp/")
+        # ^ Upload the archive to the /tmp/ directory of the web server
+        run("mkdir -p {}/".format(no_tgz))
+        # Uncompress the archive to the folder /data/web_static/releases/
+        # <archive filename without extension> on the web server
+        run("tar -xzf {} -C {}/".format(tmp, no_tgz))
+        run("rm {}".format(tmp))
+        run("mv {}/web_static/* {}/".format(no_tgz, no_tgz))
+        run("rm -rf {}/web_static".format(no_tgz))
+        # ^ Delete the archive from the web server
+        run("rm -rf /data/web_static/current")
+        # Delete the symbolic link /data/web_static/current from the web server
+        run("ln -s {}/ /data/web_static/current".format(no_tgz))
+        # Create a new the symbolic link /data/web_static/current on the
+        # web server, linked to the new version of your code
+        # (/data/web_static/releases/<archive filename without extension>)
         return True
-    except Exception as e:
+    except:
         return False
 
 
