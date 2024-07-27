@@ -6,16 +6,25 @@ app = Flask(__name__)
 
 @app.route("/", strict_slashes=False)
 def Home():
+    """
+    Welcome Text
+    """
     return "Hello HBNB!"
 
 
 @app.route("/hbnb", strict_slashes=False)
 def hbnb():
+    """
+    HBNB Route
+    """
     return "HBNB"
 
 
 @app.route("/c/<text>", strict_slashes=False)
 def c(text):
+    """
+    Variable Rules
+    """
     result = "C " + text.replace("_", " ")
     return result
 
@@ -26,6 +35,9 @@ py_default = {'text': 'is cool'}
 @app.route("/python/", defaults=py_default, strict_slashes=False)
 @app.route("/python/<text>", strict_slashes=False)
 def python(text="is cool"):
+    """
+    Variable Rules Python
+    """
     result = "Python " + text.replace("_", " ")
     return result
 
