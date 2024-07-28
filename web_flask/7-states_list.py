@@ -9,11 +9,17 @@ app = Flask(__name__)
 
 @app.teardown_appcontext
 def Close_session(exception):
+    """
+    Close Session
+    """
     storage.close()
 
 
 @app.route('/states_list', strict_slashes=False)
 def cities_by_states():
+    """
+    Display States
+    """
     states = storage.all(State).values()
     states = sorted(states, key=lambda state: state.name)
     return render_template('7-states_list.html', states=states)

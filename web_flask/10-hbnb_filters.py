@@ -3,6 +3,7 @@
 from flask import Flask, render_template
 from models.state import State
 from models import storage
+from models.amenity import Amenity
 
 app = Flask(__name__)
 
@@ -15,14 +16,16 @@ def Close_session(exception):
     storage.close()
 
 
-@app.route('/cities_by_states', strict_slashes=False)
-def cities_by_states():
+@app.route('/hbnb_filters', strict_slashes=False)
+def HoemPage():
     """
-    Display States and Cities
+    Display WebPage
     """
     states = storage.all(State).values()
     states = sorted(states, key=lambda state: state.name)
-    return render_template('8-cities_by_states.html', states=states)
+    Amenities = storage.all(Amenity).values()
+    Amenities = sorted(Amenities, key=lambda a: a.name)
+    return render_template('10-hbnb_filters.html', states=states, Amenities= Amenities)
 
 
 if __name__ == "__main__":
