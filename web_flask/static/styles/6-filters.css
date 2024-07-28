@@ -45,6 +45,16 @@
 	border-radius: 4px;
 }
 
+.popover::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+.popover {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 .locations:hover .popover {
 	display: inline-block;
 }
